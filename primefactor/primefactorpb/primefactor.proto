@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package primefactor;
+option go_package = "primefactorpb";
+
+message Number {
+  int32 num = 1;
+}
+
+message PrimeFactorRequest {
+  Number number = 1;
+}
+
+message PrimeFactorResponse {
+  int32 prime = 1;
+}
+
+service PrimeFactorService {
+  rpc PrimeFactor(PrimeFactorRequest) returns (stream PrimeFactorResponse) {};
+}
