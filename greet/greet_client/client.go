@@ -46,7 +46,7 @@ func createServerStreaming(c greetpb.GreetServiceClient) {
 	for {
 		msg, err := resStream.Recv()
 		if err == io.EOF {
-			// We're reached the end of the streaming
+			// We're reached the end of streaming
 			break
 		}
 		if err != nil {
