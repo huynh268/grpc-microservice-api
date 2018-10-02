@@ -17,9 +17,7 @@ func createClientStreaming(nums []float32, c computeaveragepb.ComputeAverageServ
 
 	for _, num := range nums {
 		req := &computeaveragepb.ComputeAverageRequest{
-			Number: &computeaveragepb.Number{
-				Num: num,
-			},
+			Number: num,
 		}
 		requests = append(requests, req)
 	}
@@ -40,7 +38,7 @@ func createClientStreaming(nums []float32, c computeaveragepb.ComputeAverageServ
 		log.Fatalf("Error while receiving response from ComputeAverage: %v", err)
 	}
 
-	fmt.Printf("ComputeAverage Response: %v\n", res)
+	fmt.Printf("The average is %v\n", res)
 }
 
 func main() {
@@ -55,7 +53,8 @@ func main() {
 
 	c := computeaveragepb.NewComputeAverageServiceClient(conn)
 
-	nums := []float32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	//nums := []float32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	nums := []float32{3, 5, 9, 54, 23}
 
 	createClientStreaming(nums, c)
 }

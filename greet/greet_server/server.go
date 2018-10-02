@@ -45,6 +45,7 @@ func (*server) GreetManyTimes(req *greetpb.GreetManyTimesRequest, stream greetpb
 	return nil
 }
 
+// Client streaming
 func (*server) LongGreet(stream greetpb.GreetService_LongGreetServer) error {
 	fmt.Println("LongGreet function is invoked with a streaming request")
 
@@ -63,6 +64,33 @@ func (*server) LongGreet(stream greetpb.GreetService_LongGreetServer) error {
 
 		firstName := req.GetGreeting().GetFirstName()
 		result += "Hello " + firstName + "! "
+	}
+}
+
+// Bi-Directional streaming
+func (*server) GreetEveryone(stream greetpb.GreetService_GreetEveryoneServer) error {
+	fmt.Println("GreetEveryone function is invoked with a streaming request")
+
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			// Reached the end of streaming
+			return nil
+		}
+		if err != nil {
+			log.Fatalf("Errot while reading client stream: %v", err)
+			return err
+		}
+
+		firstName := req.GetGreeting().GetFirstName()
+		result := "Hello " + firstName + "! "
+		sendError := stream.Send(&greetpb.GreetEveryoneResponse{
+			Result: result,
+		})
+		if sendError != nil {
+			log.Fatalf("Error while sending data to client: %v", err)
+			return sendError
+		}
 	}
 }
 

@@ -3,12 +3,8 @@ syntax = "proto3";
 package computeaverage;
 option go_package = "computeaveragepb";
 
-message Number {
-  float num = 1;
-}
-
 message ComputeAverageRequest {
-  Number number = 1;
+  float number = 1;
 }
 
 message ComputeAverageResponse {

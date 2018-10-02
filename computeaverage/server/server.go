@@ -29,7 +29,7 @@ func (*server) ComputeAverage(stream computeaveragepb.ComputeAverageService_Comp
 		if err != nil {
 			log.Fatalf("Error while reaing client stream: %v", err)
 		}
-		sum += req.GetNumber().GetNum()
+		sum += req.GetNumber()
 		count++
 	}
 }
