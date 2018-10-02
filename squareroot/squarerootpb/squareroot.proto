@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package squareroot;
+option go_package = "squarerootpb";
+
+message SquareRootRequest {
+  int32 number = 1;
+}
+
+message SquareRootResponse {
+  double root = 1;
+}
+
+service SquareRootService {
+
+  // Error handling
+  // This RPC will throw an exception if the sent number is negative
+  // The error being sent is of type INVALID_ARGUMENT
+  rpc SquareRoot (SquareRootRequest) returns (SquareRootResponse) {};
+}
