@@ -9,6 +9,9 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/status"
 )
 
 // Unary
@@ -178,10 +181,52 @@ func createBiDirectionalStreaming(c greetpb.GreetServiceClient) {
 	<-waitc
 }
 
+func createUnaryWithDeadline(c greetpb.GreetServiceClient, timeout time.Duration) {
+	fmt.Println("Starting to create a UnaryWithDeadline RPC...")
+	req := &greetpb.GreetWithDeadlineRequest{
+		Greeting: &greetpb.Greeting{
+			FirstName: "Tien",
+			LastName:  "Huynh",
+		},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	res, err := c.GreetWithDeadline(ctx, req)
+	if err != nil {
+		statusError, ok := status.FromError(err)
+		if ok {
+			if statusError.Code() == codes.DeadlineExceeded {
+				fmt.Println("Timeout was hit! Deadline was exceeded")
+			} else {
+				fmt.Printf("Unexpected error: %v", statusError)
+			}
+		} else {
+			log.Fatalf("Error while calling GreetWithDeadline RPC: %v", err)
+		}
+		return
+	}
+
+	log.Printf("Response from GreetWithDeadline: %v", res.Result)
+}
+
 func main() {
 	fmt.Println("Hello, this is client side")
 
-	conn, err := grpc.Dial("localhost: 50051", grpc.WithInsecure())
+	tls := true
+	opts := grpc.WithInsecure()
+	if tls {
+		certFile := "ssl/ca.crt" // Certificate Authority Trust certificate
+		creds, sslError := credentials.NewClientTLSFromFile(certFile, "")
+		if sslError != nil {
+			log.Fatalf("Error while loading CA trust certificate: %v", sslError)
+			return
+		}
+
+		opts = grpc.WithTransportCredentials(creds)
+	}
+
+	conn, err := grpc.Dial("localhost: 50051", opts)
 	if err != nil {
 		log.Fatalf("Could not connect: %v", err)
 	}
@@ -190,8 +235,11 @@ func main() {
 
 	c := greetpb.NewGreetServiceClient(conn)
 
-	//createUnary(c)
+	createUnary(c)
 	//createServerStreaming(c)
 	//createClientStreaming(c)
-	createBiDirectionalStreaming(c)
+	//createBiDirectionalStreaming(c)
+
+	//createUnaryWithDeadline(c, 5*time.Second)
+	//createUnaryWithDeadline(c, 1*time.Second)
 }
